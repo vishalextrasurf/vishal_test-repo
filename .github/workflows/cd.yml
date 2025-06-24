@@ -1,0 +1,43 @@
+name: Continuous Deployment
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 10 * * *'  # Daily at 10 AM
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release-deploy:
+    name: Release Deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Create Release
+        run: |
+          echo "📦 Creating release..."
+          echo "Version: ${{ github.ref_name }}"
+          sleep 3
+          
+      - name: Deploy Release
+        run: |
+          echo "🚀 Deploying release to production..."
+          echo "Release deployment in progress..."
+          sleep 6
+          echo "✅ Release deployed successfully!"
+
+  hotfix-deploy:
+    name: Hotfix Deployment
+    runs-on: ubuntu-latest
+    if: contains(github.ref, 'hotfix')
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Emergency Deploy
+        run: |
+          echo "🚨 Emergency hotfix deployment..."
+          echo "Hotfix: ${{ github.ref_name }}"
+          sleep 2
+          echo "✅ Hotfix deployed!"

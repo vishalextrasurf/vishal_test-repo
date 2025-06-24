@@ -1,0 +1,64 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Run tests
+      run: npm test
+      
+    - name: Build application
+      run: npm run build
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build for production
+      run: npm run build
+      
+    - name: Health Check
+      run: |
+        # Simulate health check that might fail
+        if [ -f "src/healthcheck.js" ]; then
+          node src/healthcheck.js
+        else
+          echo "Health check passed - no healthcheck.js found"
+        fi
+      
+    - name: Deploy to Production
+      run: |
+        echo "Deploying to production..."
+        # Simulate deployment
+        if grep -q "BREAK_DEPLOYMENT" src/app.js; then
+          echo "Deployment failed due to critical error!"
+          exit 1
+        fi
+        echo "Deployment successful!"
